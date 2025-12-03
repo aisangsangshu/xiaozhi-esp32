@@ -2,12 +2,11 @@ name: Build Boards
 
 on:
   push:
-    branches:
-      - main
-      - ci/* # for ci test
-  pull_request:
-    branches:
-      - main
+    # 只在推送以 v 开头的 tag 时触发，例如 v1.9.2、v2.0.5
+    tags:
+      - 'v*'
+  # 保留手动触发，方便在 Actions 页面点 "Run workflow"
+  workflow_dispatch: {}
 
 permissions:
   contents: read
@@ -92,7 +91,8 @@ jobs:
         include: ${{ fromJson(needs.prepare.outputs.variants) }}
     runs-on: ubuntu-latest
     container:
-      image: espressif/idf:release-v5.4
+      image: espressif/idf:release-v5.5
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -109,3 +109,25 @@ jobs:
           name: xiaozhi_${{ matrix.name }}_${{ github.sha }}.bin
           path: build/merged-binary.bin
           if-no-files-found: error
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    # 只在 tag push 且 tag 名以 v 开头时创建 Release，例如 v1.9.2、v2.0.5
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          files: artifacts/**/*.bin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
