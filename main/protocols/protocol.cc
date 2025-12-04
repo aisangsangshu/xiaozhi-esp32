@@ -72,7 +72,7 @@ void Protocol::SendStopListening() {
     std::string message = "{\"session_id\":\"" + session_id_ + "\",\"type\":\"listen\",\"state\":\"stop\"}";
     SendText(message);
 }
-
+//返回mcp 可用 tool
 void Protocol::SendMcpMessage(const std::string& payload) {
     std::string message = "{\"session_id\":\"" + session_id_ + "\",\"type\":\"mcp\",\"payload\":" + payload + "}";
     SendText(message);

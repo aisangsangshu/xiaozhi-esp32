@@ -577,7 +577,14 @@ void Application::MainEventLoop() {
             clock_ticks_++;
             auto display = Board::GetInstance().GetDisplay();
             display->UpdateStatusBar();
-        
+
+            // 当设备处于待命（STANDBY，即 kDeviceStateIdle）状态时，每 60 秒请求一次单词
+            if (device_state_ == kDeviceStateIdle && (clock_ticks_ % 60 == 0)) {
+                // 使用 MCP 消息向服务器请求一个单词，服务器返回后应通过 JSON/custom/MCP 等方式更新显示
+                // 这里不触发本地音频播放，仅由显示模块展示内容
+                SendMcpMessage(R"({"type":"word_request"})");
+            }
+
             // Print the debug info every 10 seconds
             if (clock_ticks_ % 10 == 0) {
                 // SystemInfo::PrintTaskCpuUsage(pdMS_TO_TICKS(1000));
@@ -657,7 +664,7 @@ void Application::SetDeviceState(DeviceState state) {
     switch (state) {
         case kDeviceStateUnknown:
         case kDeviceStateIdle:
-            display->SetStatus(Lang::Strings::STANDBY);
+            display->SetStatus(Lang::Strings::STANDBY);//待命显示
             display->SetEmotion("neutral");
             audio_service_.EnableVoiceProcessing(false);
             audio_service_.EnableWakeWordDetection(true);

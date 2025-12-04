@@ -162,7 +162,7 @@ void McpServer::ParseCapabilities(const cJSON* capabilities) {
         }
     }
 }
-
+//解析cient请求
 void McpServer::ParseMessage(const cJSON* json) {
     // Check JSONRPC version
     auto version = cJSON_GetObjectItem(json, "jsonrpc");
@@ -209,7 +209,7 @@ void McpServer::ParseMessage(const cJSON* json) {
         message += app_desc->version;
         message += "\"}}";
         ReplyResult(id_int, message);
-    } else if (method_str == "tools/list") {
+    } else if (method_str == "tools/list") {//判断mcp可用的工具
         std::string cursor_str = "";
         if (params != nullptr) {
             auto cursor = cJSON_GetObjectItem(params, "cursor");
@@ -236,13 +236,13 @@ void McpServer::ParseMessage(const cJSON* json) {
             ReplyError(id_int, "Invalid arguments");
             return;
         }
-        DoToolCall(id_int, std::string(tool_name->valuestring), tool_arguments);
+        DoToolCall(id_int, std::string(tool_name->valuestring), tool_arguments);//执行tool
     } else {
         ESP_LOGE(TAG, "Method not implemented: %s", method_str.c_str());
         ReplyError(id_int, "Method not implemented: " + method_str);
     }
 }
-
+//将tool list返回给client
 void McpServer::ReplyResult(int id, const std::string& result) {
     std::string payload = "{\"jsonrpc\":\"2.0\",\"id\":";
     payload += std::to_string(id) + ",\"result\":";
@@ -308,7 +308,7 @@ void McpServer::GetToolsList(int id, const std::string& cursor) {
         json += "],\"nextCursor\":\"" + next_cursor + "\"}";
     }
     
-    ReplyResult(id, json);
+    ReplyResult(id, json);//返回mcp可用的工具，消息可无需tts
 }
 
 void McpServer::DoToolCall(int id, const std::string& tool_name, const cJSON* tool_arguments) {
