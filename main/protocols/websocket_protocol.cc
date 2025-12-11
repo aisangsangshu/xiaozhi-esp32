@@ -198,7 +198,7 @@ bool WebsocketProtocol::OpenAudioChannel() {
 
     return true;
 }
-
+//hello发送server
 std::string WebsocketProtocol::GetHelloMessage() {
     // keys: message type, version, audio_params (format, sample_rate, channels)
     cJSON* root = cJSON_CreateObject();

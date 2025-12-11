@@ -541,7 +541,7 @@ void Application::MainEventLoop() {
             MAIN_EVENT_ERROR, pdTRUE, pdFALSE, portMAX_DELAY);
 
         if (bits & MAIN_EVENT_ERROR) {
-            SetDeviceState(kDeviceStateIdle);
+            SetDeviceState(kDeviceStateIdle);//显示待命
             Alert(Lang::Strings::ERROR, last_error_message_.c_str(), "circle_xmark", Lang::Sounds::OGG_EXCLAMATION);
         }
 
@@ -578,8 +578,8 @@ void Application::MainEventLoop() {
             auto display = Board::GetInstance().GetDisplay();
             display->UpdateStatusBar();
 
-            // 当设备处于待命（STANDBY，即 kDeviceStateIdle）状态时，每 60 秒请求一次单词
-            if (device_state_ == kDeviceStateIdle && (clock_ticks_ % 60 == 0)) {
+            // 当设备处于待命（STANDBY，即 kDeviceStateIdle）状态且协议已初始化时，每 60 秒请求一次单词
+            if (device_state_ == kDeviceStateIdle && protocol_ && (clock_ticks_ % 60 == 0)) {
                 // 使用 MCP 消息向服务器请求一个单词，服务器返回后应通过 JSON/custom/MCP 等方式更新显示
                 // 这里不触发本地音频播放，仅由显示模块展示内容
                 SendMcpMessage(R"({"type":"word_request"})");

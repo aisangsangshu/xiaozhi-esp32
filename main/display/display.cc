@@ -113,7 +113,7 @@ void Display::UpdateStatusBar(bool update_all) {
     }
 
     // Update time
-    if (app.GetDeviceState() == kDeviceStateIdle) {
+    if (app.GetDeviceState() == kDeviceStateIdle) {//dile时候，大于10s，将待命切换为时间
         if (last_status_update_time_ + std::chrono::seconds(10) < std::chrono::system_clock::now()) {
             // Set status to clock "HH:MM"
             time_t now = time(NULL);

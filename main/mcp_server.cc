@@ -204,7 +204,7 @@ void McpServer::ParseMessage(const cJSON* json) {
                 ParseCapabilities(capabilities);
             }
         }
-        auto app_desc = esp_app_get_description();
+        auto app_desc = esp_app_get_description();//库函数
         std::string message = "{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"" BOARD_NAME "\",\"version\":\"";
         message += app_desc->version;
         message += "\"}}";
